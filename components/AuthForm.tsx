@@ -28,9 +28,11 @@ const AuthForm = ({ type }: { type: string }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [onHover, setOnHover] = useState(false);
 
+  const formSchema = authFormSchema(type);
+
   // 1. Define form
-  const form = useForm<z.infer<typeof authFormSchema>>({
-    resolver: zodResolver(authFormSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -38,17 +40,25 @@ const AuthForm = ({ type }: { type: string }) => {
   });
   //
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof authFormSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     setIsLoading(true);
-    console.log(values);
-    setIsLoading(false);
-  }
+
+    try {
+      //Sign up with Appwrite & create plaid token
+      if(type === 'sign-up') {
+        
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(true);
+    }
+  };
 
   return (
-    <div className="flex w-full min-h-screen">
-    <section className="auth-form ml-[10rem] mr-[5rem]">
+    <section className="auth-form border-red-600">
       <header className="flex flex-col gap-5 md:gap-8">
         <Link href="/" className="flex cursor-pointer items-center gap-1">
           <Image
@@ -65,12 +75,12 @@ const AuthForm = ({ type }: { type: string }) => {
 
         <div className="flex flex-col gap-1 md:gap-3">
           <h1 className="text-24 lg:text-36 font-semibold text-gray-900">
-            {user ? "Link Account" : type === "sign-in" ? "Sign In" : "Sign Up"}
+            {user ? "Link Account" : type === "sign-in" ? "Log in" : "Sign up"}
           </h1>
           <p className="text-16 font-normal text-gray-600">
-            {user
-              ? "Link your account to get started"
-              : "Please enter your details"}
+            {type === "sign-in"
+              ? "Welcome back! Please enter your details."
+              : "Please enter your details."}
           </p>
         </div>
       </header>
@@ -167,7 +177,6 @@ const AuthForm = ({ type }: { type: string }) => {
           </form>
         </Form>
       )}
-
       <footer className="flex justify-center gap-1">
         <p className="text-14 font-normal text-gray-600">
           {type === "sign-in"
@@ -182,16 +191,6 @@ const AuthForm = ({ type }: { type: string }) => {
         </Link>
       </footer>
     </section>
-    <div className="auth-asset">
-        <Image
-          src="/icons/auth-image.svg"
-          alt="Auth image"
-          width={600}
-          height={100}
-          className="flex border"
-        />
-      </div>
-    </div>
   );
 };
 
